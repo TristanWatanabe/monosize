@@ -1,4 +1,5 @@
 import { AzureNamedKeyCredential, odata, TableClient, TableTransaction } from '@azure/data-tables';
+import { DefaultAzureCredential } from '@azure/identity';
 import { BundleSizeReportEntry, StorageAdapter } from 'monosize';
 import pc from 'picocolors';
 
@@ -15,11 +16,13 @@ export function splitArrayToChunks<T>(arr: T[], size: number): T[][] {
 }
 
 export const uploadReportToRemote: StorageAdapter['uploadReportToRemote'] = async (branch, commitSHA, localReport) => {
-  if (typeof process.env['BUNDLESIZE_ACCOUNT_KEY'] !== 'string') {
+  const useDefaultAzureCredential = process.env['DEFAULT_AZURE_CREDENTIAL'] === 'true';
+
+  if (!useDefaultAzureCredential && typeof process.env['BUNDLESIZE_ACCOUNT_KEY'] !== 'string') {
     throw new Error('monosize-storage-azure: "BUNDLESIZE_ACCOUNT_KEY" is not defined in your process.env');
   }
 
-  if (typeof process.env['BUNDLESIZE_ACCOUNT_NAME'] !== 'string') {
+  if (!useDefaultAzureCredential && typeof process.env['BUNDLESIZE_ACCOUNT_NAME'] !== 'string') {
     throw new Error('monosize-storage-azure: "BUNDLESIZE_ACCOUNT_NAME" is not defined in your process.env');
   }
 
@@ -28,16 +31,21 @@ export const uploadReportToRemote: StorageAdapter['uploadReportToRemote'] = asyn
     return;
   }
 
-  const AZURE_STORAGE_ACCOUNT = process.env['BUNDLESIZE_ACCOUNT_NAME'];
+  const AZURE_STORAGE_ACCOUNT = process.env['BUNDLESIZE_ACCOUNT_NAME'] as string;
   const AZURE_STORAGE_TABLE_NAME = 'latest';
-  const AZURE_ACCOUNT_KEY = process.env['BUNDLESIZE_ACCOUNT_KEY'];
+  const AZURE_ACCOUNT_KEY = process.env['BUNDLESIZE_ACCOUNT_KEY'] as string;
 
-  const credentials = new AzureNamedKeyCredential(AZURE_STORAGE_ACCOUNT, AZURE_ACCOUNT_KEY);
-  const client = new TableClient(
-    `https://${AZURE_STORAGE_ACCOUNT}.table.core.windows.net`,
-    AZURE_STORAGE_TABLE_NAME,
-    credentials,
-  );
+  const client = useDefaultAzureCredential
+    ? new TableClient(
+        `https://${AZURE_STORAGE_ACCOUNT}.table.core.windows.net`,
+        AZURE_STORAGE_TABLE_NAME,
+        new DefaultAzureCredential(),
+      )
+    : new TableClient(
+        `https://${AZURE_STORAGE_ACCOUNT}.table.core.windows.net`,
+        AZURE_STORAGE_TABLE_NAME,
+        new AzureNamedKeyCredential(AZURE_STORAGE_ACCOUNT, AZURE_ACCOUNT_KEY),
+      );
 
   const transaction = new TableTransaction();
   const entitiesIterator = await client.listEntities({
