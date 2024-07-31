@@ -1,0 +1,67 @@
+pr:
+  - main
+
+trigger:
+  - main
+
+variables:
+  ${{ if not(startsWith(variables['Build.SourceBranch'], 'refs/heads/')) }}:
+    isPR: true
+  ${{ if startsWith(variables['Build.SourceBranch'], 'refs/heads/') }}:
+    isPR: false
+
+jobs:
+  - job: Bundle_Size
+    workspace:
+      clean: all
+    pool: '1ES-Host-Ubuntu'
+    steps:
+      # For multiline scripts, we want the whole task to fail if any line of the script fails.
+      # ADO doesn't have bash configured this way by default. To fix we override the SHELLOPTS built-in variable.
+      # https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
+      # The options below include ADO defaults (braceexpand:hashall:interactive-comments) plus
+      # errexit:errtrace for better error behavior.
+      - script: |
+          echo "##vso[task.setvariable variable=shellopts]braceexpand:hashall:interactive-comments:errexit:errtrace"
+        displayName: Force exit on error (bash)
+
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '16.x'
+          checkLatest: true
+        displayName: 'Install Node.js'
+
+      - script: yarn install --frozen-lockfile
+        displayName: Install dependencies
+
+      - script: |
+          yarn nx run-many --t build --all
+        displayName: Build packages
+
+      - script: |
+          yarn nx run-many --t bundle-size --all --verbose
+        displayName: create reports
+
+      # - script: |
+      #     yarn monosize compare-reports --branch=$(System.PullRequest.TargetBranch) --output=markdown --quiet > ./monosize-report.md
+      #   displayName: Compare bundle-size with base (PR Only)
+      #   condition: eq(variables.isPR, true)
+
+      # - task: GithubPRComment@0
+      #   displayName: Post results to PR (PR only)
+      #   condition: eq(variables.isPR, true)
+      #   inputs:
+      #     githubOwner: microsoft
+      #     githubRepo: 'fluentai'
+      #     githubToken: $(githubPAT)
+      #     blobFilePath: 'monosize-report.md'
+      #     status: 'success'
+      #     uniqueId: 'bundleSizeComment6721'
+
+      - script: |
+          yarn monosize upload-report --branch=$(Build.SourceBranchName) --commit-sha $(Build.SourceVersion)
+        displayName: Upload reports of base bundle-size (CI Only)
+        # condition: eq(variables.isPR, false)
+        env:
+          BUNDLESIZE_ACCOUNT_NAME: bundlesizeonlyforteb64f
+          DEFAULT_AZURE_CREDENTIAL: true

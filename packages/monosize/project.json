@@ -7,7 +7,7 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/packages/monosize",
+        "outputPath": "packages/monosize/dist",
         "main": "packages/monosize/src/index.ts",
         "tsConfig": "packages/monosize/tsconfig.lib.json",
         "outputFileExtensionForEsm": ".mjs",
@@ -35,6 +35,13 @@
       "outputs": ["{workspaceRoot}/coverage/packages/monosize"],
       "options": {
         "passWithNoTests": true
+      }
+    },
+    "bundle-size": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "packages/monosize",
+        "commands": [{ "command": "./dist/bin/monosize.mjs measure" }]
       }
     }
   },
