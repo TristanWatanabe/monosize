@@ -1,5 +1,5 @@
 import { AzureNamedKeyCredential, odata, TableClient, TableTransaction } from '@azure/data-tables';
-import { DefaultAzureCredential } from '@azure/identity';
+import { DefaultAzureCredential, WorkloadIdentityCredential } from '@azure/identity';
 import { BundleSizeReportEntry, StorageAdapter } from 'monosize';
 import pc from 'picocolors';
 
@@ -39,7 +39,7 @@ export const uploadReportToRemote: StorageAdapter['uploadReportToRemote'] = asyn
     ? new TableClient(
         `https://${AZURE_STORAGE_ACCOUNT}.table.core.windows.net`,
         AZURE_STORAGE_TABLE_NAME,
-        new DefaultAzureCredential(),
+        new WorkloadIdentityCredential(),
       )
     : new TableClient(
         `https://${AZURE_STORAGE_ACCOUNT}.table.core.windows.net`,

@@ -63,7 +63,6 @@ jobs:
         env:
           DEFAULT_AZURE_CREDENTIAL: true
           BUNDLESIZE_ACCOUNT_NAME: bundlesizeonlyforteb64f
-
         inputs:
           azureSubscription: $(AzureSubscription)
           scriptType: bash
