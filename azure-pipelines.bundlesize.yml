@@ -58,10 +58,15 @@ jobs:
       #     status: 'success'
       #     uniqueId: 'bundleSizeComment6721'
 
-      - script: |
-          yarn monosize upload-report --branch=$(Build.SourceBranchName) --commit-sha $(Build.SourceVersion)
-        displayName: Upload reports of base bundle-size (CI Only)
-        # condition: eq(variables.isPR, false)
+      - task: AzureCLI@2
+        displayName: 'Upload reports of base bundle-size (CI Only)'
         env:
-          BUNDLESIZE_ACCOUNT_NAME: bundlesizeonlyforteb64f
           DEFAULT_AZURE_CREDENTIAL: true
+          BUNDLESIZE_ACCOUNT_NAME: bundlesizeonlyforteb64f
+
+        inputs:
+          azureSubscription: $(AzureSubscription)
+          scriptType: bash
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            yarn monosize upload-report --branch=$(Build.SourceBranchName) --commit-sha $(Build.SourceVersion)

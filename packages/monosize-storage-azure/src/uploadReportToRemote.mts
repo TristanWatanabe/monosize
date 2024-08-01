@@ -22,7 +22,7 @@ export const uploadReportToRemote: StorageAdapter['uploadReportToRemote'] = asyn
     throw new Error('monosize-storage-azure: "BUNDLESIZE_ACCOUNT_KEY" is not defined in your process.env');
   }
 
-  if (!useDefaultAzureCredential && typeof process.env['BUNDLESIZE_ACCOUNT_NAME'] !== 'string') {
+  if (typeof process.env['BUNDLESIZE_ACCOUNT_NAME'] !== 'string') {
     throw new Error('monosize-storage-azure: "BUNDLESIZE_ACCOUNT_NAME" is not defined in your process.env');
   }
 
