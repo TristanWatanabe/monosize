@@ -2,6 +2,9 @@ import { AzureNamedKeyCredential, odata, TableClient, TableTransaction } from '@
 import { DefaultAzureCredential, WorkloadIdentityCredential } from '@azure/identity';
 import { BundleSizeReportEntry, StorageAdapter } from 'monosize';
 import pc from 'picocolors';
+import { setLogLevel } from '@azure/logger';
+
+setLogLevel('info');
 
 export const ENTRIES_PER_CHUNK = 90;
 
@@ -39,7 +42,7 @@ export const uploadReportToRemote: StorageAdapter['uploadReportToRemote'] = asyn
     ? new TableClient(
         `https://${AZURE_STORAGE_ACCOUNT}.table.core.windows.net`,
         AZURE_STORAGE_TABLE_NAME,
-        new WorkloadIdentityCredential(),
+        new DefaultAzureCredential({ loggingOptions: { allowLoggingAccountIdentifiers: true } }),
       )
     : new TableClient(
         `https://${AZURE_STORAGE_ACCOUNT}.table.core.windows.net`,

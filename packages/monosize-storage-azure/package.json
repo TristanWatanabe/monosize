@@ -9,6 +9,7 @@
     "monosize": "^0.6.2",
     "node-fetch": "^3.3.0",
     "picocolors": "^1.0.0",
-    "tslib": "^2.4.1"
+    "tslib": "^2.4.1",
+    "@azure/logger": "^1.1.3"
   }
 }
