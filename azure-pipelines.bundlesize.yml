@@ -42,12 +42,6 @@ jobs:
           yarn nx run-many --t bundle-size --all --verbose
         displayName: create reports
 
-      # - script: |
-      #     yarn monosize compare-reports --branch=$(Build.SourceBranchName) --output=markdown --quiet > ./monosize-report.md
-      #     cat ./monosize-report.md
-      #   displayName: Compare bundle-size with base (PR Only)
-      # condition: eq(variables.isPR, true)
-
       - task: AzureCLI@2
         displayName: 'Upload reports of base bundle-size (CI Only)'
         env:
@@ -63,6 +57,12 @@ jobs:
           scriptLocation: 'inlineScript'
           inlineScript: |
             yarn monosize upload-report --branch=$(Build.SourceBranchName) --commit-sha $(Build.SourceVersion)
+
+      - script: |
+          yarn monosize compare-reports --branch=$(Build.SourceBranchName) --output=markdown --quiet > ./monosize-report.md
+          cat ./monosize-report.md
+        displayName: Compare bundle-size with base (PR Only)
+        # condition: eq(variables.isPR, true)
 
       # - task: AzureCLI@2
       #   displayName: 'Compare bundle-size with base (PR Only)'
@@ -80,11 +80,6 @@ jobs:
       #     inlineScript: |
       #       yarn monosize compare-reports --branch=$(Build.SourceBranchName) --output=markdown --quiet > ./monosize-report.md
       #       cat ./monosize-report.md
-    
-        - script: |
-            yarn monosize compare-reports --branch=$(Build.SourceBranchName) --output=markdown --quiet > ./monosize-report.md
-            cat ./monosize-report.md
-          displayName: Compare bundle-size with base (PR Only)
 
       # - task: GithubPRComment@0
       #   displayName: Post results to PR (PR only)
