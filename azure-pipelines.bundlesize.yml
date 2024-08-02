@@ -49,21 +49,42 @@ jobs:
       # condition: eq(variables.isPR, true)
 
       - task: AzureCLI@2
-        displayName: 'Compare bundle-size with base (PR Only)'
-        # env:
-        #   DEFAULT_AZURE_CREDENTIAL: true
-        #   BUNDLESIZE_ACCOUNT_NAME: bundlesizeonlyforteb3fe
-        #   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-        #   AZURE_TENANT_ID: $(AzureTenantId)
-        #   AZURE_CLIENT_ID: $(AzureClientId)
-        #   AZURE_SERVICE_CONNECTION_ID: $(AzureServiceConnectionId)
+        displayName: 'Upload reports of base bundle-size (CI Only)'
+        env:
+          DEFAULT_AZURE_CREDENTIAL: true
+          BUNDLESIZE_ACCOUNT_NAME: bundlesizeonlyfortea3bd
+          SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+          AZURE_TENANT_ID: $(AzureTenantId)
+          AZURE_CLIENT_ID: $(AzureClientId)
+          AZURE_SERVICE_CONNECTION_ID: $(AzureServiceConnectionId)
         inputs:
           azureSubscription: $(AzureSubscription)
           scriptType: bash
           scriptLocation: 'inlineScript'
           inlineScript: |
+            yarn monosize upload-report --branch=$(Build.SourceBranchName) --commit-sha $(Build.SourceVersion)
+
+      # - task: AzureCLI@2
+      #   displayName: 'Compare bundle-size with base (PR Only)'
+      #   # env:
+      #   #   DEFAULT_AZURE_CREDENTIAL: true
+      #   #   BUNDLESIZE_ACCOUNT_NAME: bundlesizeonlyforteb3fe
+      #   #   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+      #   #   AZURE_TENANT_ID: $(AzureTenantId)
+      #   #   AZURE_CLIENT_ID: $(AzureClientId)
+      #   #   AZURE_SERVICE_CONNECTION_ID: $(AzureServiceConnectionId)
+      #   inputs:
+      #     azureSubscription: $(AzureSubscription)
+      #     scriptType: bash
+      #     scriptLocation: 'inlineScript'
+      #     inlineScript: |
+      #       yarn monosize compare-reports --branch=$(Build.SourceBranchName) --output=markdown --quiet > ./monosize-report.md
+      #       cat ./monosize-report.md
+    
+        - script: |
             yarn monosize compare-reports --branch=$(Build.SourceBranchName) --output=markdown --quiet > ./monosize-report.md
             cat ./monosize-report.md
+          displayName: Compare bundle-size with base (PR Only)
 
       # - task: GithubPRComment@0
       #   displayName: Post results to PR (PR only)
@@ -75,19 +96,3 @@ jobs:
       #     blobFilePath: 'monosize-report.md'
       #     status: 'success'
       #     uniqueId: 'bundleSizeComment6721'
-
-      # - task: AzureCLI@2
-      #   displayName: 'Upload reports of base bundle-size (CI Only)'
-      #   env:
-      #     DEFAULT_AZURE_CREDENTIAL: true
-      #     BUNDLESIZE_ACCOUNT_NAME: bundlesizeonlyforteb3fe
-      #     SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-      #     AZURE_TENANT_ID: $(AzureTenantId)
-      #     AZURE_CLIENT_ID: $(AzureClientId)
-      #     AZURE_SERVICE_CONNECTION_ID: $(AzureServiceConnectionId)
-      #   inputs:
-      #     azureSubscription: $(AzureSubscription)
-      #     scriptType: bash
-      #     scriptLocation: 'inlineScript'
-      #     inlineScript: |
-      #       yarn monosize upload-report --branch=$(Build.SourceBranchName) --commit-sha $(Build.SourceVersion)
