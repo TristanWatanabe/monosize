@@ -1,5 +1,5 @@
 import { AzureNamedKeyCredential, odata, TableClient, TableTransaction } from '@azure/data-tables';
-import { DefaultAzureCredential, WorkloadIdentityCredential } from '@azure/identity';
+import { DefaultAzureCredential, AzurePipelinesCredential } from '@azure/identity';
 import { BundleSizeReportEntry, StorageAdapter } from 'monosize';
 import pc from 'picocolors';
 import { setLogLevel } from '@azure/logger';
@@ -38,11 +38,16 @@ export const uploadReportToRemote: StorageAdapter['uploadReportToRemote'] = asyn
   const AZURE_STORAGE_TABLE_NAME = 'latest';
   const AZURE_ACCOUNT_KEY = process.env['BUNDLESIZE_ACCOUNT_KEY'] as string;
 
+  const tenantId = process.env['AZURE_TENANT_ID'] as string;
+  const clientId = process.env['AZURE_CLIENT_ID'] as string;
+  const serviceConnectionId = process.env['AZURE_SERVICE_CONNECTION_ID'] as string;
+  const systemAccessToken = process.env['SYSTEM_ACCESSTOKEN'] as string;
+
   const client = useDefaultAzureCredential
     ? new TableClient(
         `https://${AZURE_STORAGE_ACCOUNT}.table.core.windows.net`,
         AZURE_STORAGE_TABLE_NAME,
-        new DefaultAzureCredential({ loggingOptions: { allowLoggingAccountIdentifiers: true } }),
+        new AzurePipelinesCredential(tenantId, clientId, serviceConnectionId, systemAccessToken),
       )
     : new TableClient(
         `https://${AZURE_STORAGE_ACCOUNT}.table.core.windows.net`,
