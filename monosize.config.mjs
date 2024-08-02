@@ -7,7 +7,7 @@ const config = {
   bundler: webpackBundler(config => {
     return config;
   }),
-  storage: createAzureStorage({ endpoint: 'https://bundle-size-testing-env.azurewebsites.net/api/latest' }),
+  storage: createAzureStorage({ endpoint: 'https://bundle-size-testing-part-3.azurewebsites.net/api/latest' }),
 };
 
 export default config;
