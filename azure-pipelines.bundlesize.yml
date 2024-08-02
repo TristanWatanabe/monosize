@@ -44,9 +44,9 @@ jobs:
 
       - script: |
           yarn monosize compare-reports --branch=$(System.PullRequest.TargetBranch) --output=markdown --quiet > ./monosize-report.md
-          cat ./monosize-report.md  
-          displayName: Compare bundle-size with base (PR Only)
-        condition: eq(variables.isPR, true)
+          cat ./monosize-report.md
+        displayName: Compare bundle-size with base (PR Only)
+        # condition: eq(variables.isPR, true)
 
       # - task: GithubPRComment@0
       #   displayName: Post results to PR (PR only)
