@@ -42,10 +42,11 @@ jobs:
           yarn nx run-many --t bundle-size --all --verbose
         displayName: create reports
 
-      # - script: |
-      #     yarn monosize compare-reports --branch=$(System.PullRequest.TargetBranch) --output=markdown --quiet > ./monosize-report.md
-      #   displayName: Compare bundle-size with base (PR Only)
-      #   condition: eq(variables.isPR, true)
+      - script: |
+          yarn monosize compare-reports --branch=$(System.PullRequest.TargetBranch) --output=markdown --quiet > ./monosize-report.md
+          cat ./monosize-report.md  
+          displayName: Compare bundle-size with base (PR Only)
+        condition: eq(variables.isPR, true)
 
       # - task: GithubPRComment@0
       #   displayName: Post results to PR (PR only)
@@ -58,18 +59,18 @@ jobs:
       #     status: 'success'
       #     uniqueId: 'bundleSizeComment6721'
 
-      - task: AzureCLI@2
-        displayName: 'Upload reports of base bundle-size (CI Only)'
-        env:
-          DEFAULT_AZURE_CREDENTIAL: true
-          BUNDLESIZE_ACCOUNT_NAME: bundlesizeonlyforteb3fe
-          SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-          AZURE_TENANT_ID: $(AzureTenantId)
-          AZURE_CLIENT_ID: $(AzureClientId)
-          AZURE_SERVICE_CONNECTION_ID: $(AzureServiceConnectionId)
-        inputs:
-          azureSubscription: $(AzureSubscription)
-          scriptType: bash
-          scriptLocation: 'inlineScript'
-          inlineScript: |
-            yarn monosize upload-report --branch=$(Build.SourceBranchName) --commit-sha $(Build.SourceVersion)
+      # - task: AzureCLI@2
+      #   displayName: 'Upload reports of base bundle-size (CI Only)'
+      #   env:
+      #     DEFAULT_AZURE_CREDENTIAL: true
+      #     BUNDLESIZE_ACCOUNT_NAME: bundlesizeonlyforteb3fe
+      #     SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+      #     AZURE_TENANT_ID: $(AzureTenantId)
+      #     AZURE_CLIENT_ID: $(AzureClientId)
+      #     AZURE_SERVICE_CONNECTION_ID: $(AzureServiceConnectionId)
+      #   inputs:
+      #     azureSubscription: $(AzureSubscription)
+      #     scriptType: bash
+      #     scriptLocation: 'inlineScript'
+      #     inlineScript: |
+      #       yarn monosize upload-report --branch=$(Build.SourceBranchName) --commit-sha $(Build.SourceVersion)
