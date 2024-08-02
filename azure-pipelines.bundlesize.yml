@@ -43,7 +43,7 @@ jobs:
         displayName: create reports
 
       - script: |
-          yarn monosize compare-reports --branch=$(System.PullRequest.TargetBranch) --output=markdown --quiet > ./monosize-report.md
+          yarn monosize compare-reports --branch=$(Build.SourceBranchName) --output=markdown --quiet > ./monosize-report.md
           cat ./monosize-report.md
         displayName: Compare bundle-size with base (PR Only)
         # condition: eq(variables.isPR, true)
