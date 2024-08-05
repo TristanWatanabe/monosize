@@ -42,21 +42,20 @@ jobs:
           yarn nx run-many --t bundle-size --all --verbose
         displayName: create reports
 
-      # - task: AzureCLI@2
-      #   displayName: 'Upload reports of base bundle-size (CI Only)'
-      #   env:
-      #     DEFAULT_AZURE_CREDENTIAL: true
-      #     BUNDLESIZE_ACCOUNT_NAME: bundlesizeonlyfortea3bd
-      #     SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-      #     AZURE_TENANT_ID: $(AzureTenantId)
-      #     AZURE_CLIENT_ID: $(AzureClientId)
-      #     AZURE_SERVICE_CONNECTION_ID: $(AzureServiceConnectionId)
-      #   inputs:
-      #     azureSubscription: $(AzureSubscription)
-      #     scriptType: bash
-      #     scriptLocation: 'inlineScript'
-      #     inlineScript: |
-      #       yarn monosize upload-report --branch=$(Build.SourceBranchName) --commit-sha $(Build.SourceVersion)
+      - task: AzureCLI@2
+        displayName: 'Upload reports of base bundle-size (CI Only)'
+        env:
+          BUNDLESIZE_ACCOUNT_NAME: bundlesizeonlyfortea3bd
+          SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+          AZURE_TENANT_ID: $(AzureTenantId)
+          AZURE_CLIENT_ID: $(AzureClientId)
+          AZURE_SERVICE_CONNECTION_ID: $(AzureServiceConnectionId)
+        inputs:
+          azureSubscription: $(AzureSubscription)
+          scriptType: bash
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            yarn monosize upload-report --branch=$(Build.SourceBranchName) --commit-sha $(Build.SourceVersion)
       - script: |
           yarn monosize compare-reports --branch=$(Build.SourceBranchName) --output=markdown --quiet > ./monosize-report.md
           cat ./monosize-report.md
